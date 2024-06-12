@@ -19,7 +19,7 @@ Constantes:
     CONDITION: Mot-Clé Condition.
     INFINI: Mot-Clé Bouble Infinie.
 
-Auteurs : NKILI OBELE Karen Fifi, AGBOSSA YAO Serge
+Auteurs : NKILI OBELE Karen Fifi
 """
 
 OP = ["+", "-", "*", "/"] # Opérations arithmétiques
@@ -254,15 +254,42 @@ def takeInstructionWhile(bloc):
     except Exception as e:
         print(f"Fonction 'takeInstructionWhile' : Une erreur inattendue s'est produite : {e}")
              
+def takeInitialWhile(bloc):
+    """Récupère la instruction d'initialisation du While.
 
-def evaluateWhile(cond, instruction):
-    """Évalue l'instruction while. Pour l'instant, 
-    la fonction ne prend en compte que les boucles ayant 
-    des conditions de la forme i <= 10.
+    Args:
+        bloc (str): le  bloc à analyser.
+    
+    Returns:
+        str: l'instruction d'initialisation
+    """
+    try:
+        linesNoW, linesW = TakeWhile(bloc)
+        linesNoW = bloc.split(TANTQUE)[0] #Le bloc avant le while
+        cond,instr = takeInstructionWhile(linesW) #On récupère la condition du while
+        var,opR,var2 = StringToCond(cond)
+        
+        #Cherche la ligne d'affectation
+        for line in linesNoW.split('\n'):
+            if IsAffect(line): #Vérifie si c'est la ligne d'initialisation
+                varA,afA,valA = StringToAffect(line)
+                if varA == var:
+                    return line
+
+    except AttributeError:
+        raise ValueError("Une chaîne de caractères était attendue, mais un autre type a été reçu.")
+    except Exception as e:
+        print(f"Fonction 'takeInitialWhile' : Une erreur inattendue s'est produite : {e}")
+
+
+def evaluateWhile(cond, instruction, initial):
+    """Évalue l'instruction while. 
+    La fonction ne prend en compte que les boucles ayant 
+    des conditions de la forme i <= 10 ou i >= 10.
+    L'initialisation sera de la forme i = 0.
     Et la fonction peut seulement calculer le nombre de tour de la boucle
-    si l'instruction est de la forme i = i + 1 ou i = i * 2, 
-    donc incrémentation de la variable de la condition.
-    L'algo marche lorsque i est initialisé à 0 pour +, et 1 pour *
+    si l'instruction est de la forme i = i + 1 ou i = i * 2 ou i = i - 1, 
+    donc incrémentation et la décrémentation de la variable de la condition.
     
     Args:
         cond (str): La condition du while.
@@ -272,23 +299,31 @@ def evaluateWhile(cond, instruction):
         int: Le nombre de tour de la boucle, ou 'Infini' si la boucle est infinie.
     """
     try:
+        if instruction == None:
+            return INFINI
         it = 0
         varC, OpC, VarC2 = StringToCond(cond)
         varI, OpI, VarI2, Op, VarI1 = StringToOpe(instruction)
+        varIn, AfIn, Val2 = StringToAffect(initial)
         
         #Calcule le nombre de tour de la boucle
         if OpC == OPREL[0]: #Si la condition est de la forme i <= 10
             if Op == OP[0]: #Si l'instruction est de la forme i = i + 1
-                it = ((int(VarC2) - int(VarI1)) // int(VarI1)) + 1
+                it = (((int(VarC2) - int(Val2))) // int(VarI1))
             elif Op == OP[1]:
                 return INFINI
             elif Op == OP[2]:
-                it = math.log(int(VarC2), int(VarI1)) + 1
-        """elif OpC == OPREL[1]: #Si la condition est de la forme i >= 10
+                if int(Val2) != 0:
+                    it = math.log(int(VarC2) / int(Val2), int(VarI1)) + 1
+                else:
+                    return 0
+        elif OpC == OPREL[1]: #Si la condition est de la forme i >= 10
             if Op == OP[1]: #Si l'instruction est de la forme i = i - 1
-                it = ((int(VarI1) - int(VarC2)) // int(VarI1)) + 1
-            elif Op == OP[1]:
-                return INFINI"""
+                it = ((int(Val2) - int(VarC2)) // int(VarI1)) + 1
+            elif Op == OP[0]:
+                return INFINI
+            elif Op == OP[2]:
+                return INFINI
         return int(it)
             
     except AttributeError:
@@ -302,7 +337,7 @@ if __name__ == "__main__":
     str2 = "k = j"  # Une affectation
     str3 = "i <= 10"  # Une condition
     pseudo_code = """
-    a = 0
+    a = 2
     p = a + 3
     while(a <= 10){
         j = i + 1
@@ -311,15 +346,39 @@ if __name__ == "__main__":
     }
     a = 4 + 6
     """  # Un bloc while
+    pseudo_code2 = """
+    a = 1
+    p = a + 3
+    while(a <= 10){
+        j = i + 1
+        k = j
+        a = a * 2
+    }
+    a = 4 + 6
+    """
+
+    pseudo_code3 = """
+    a = 10
+    p = a + 3
+    while(a >= 2){
+        j = i + 1
+        k = j
+        a = a - 3
+    }
+    a = 4 + 6
+    """
 
     blocSansWhile = pseudo_code.split("while")[0]+pseudo_code.split("}")[1]  # Le bloc sans l'instruction while
     
+    
     while1 = "while"+pseudo_code.split("while")[1].split("}")[0]+"}"  # L'instruction while
     Cond, Instr = takeInstructionWhile(while1)
+    Ini = takeInitialWhile(pseudo_code)
     print(Cond)
     print(Instr)
+    print(Ini)
     
-    ResW = evaluateWhile(Cond, Instr)
+    ResW = evaluateWhile(Cond, Instr, Ini)
     print(ResW)
 
     while2 = """while(a <= 10){
@@ -328,10 +387,24 @@ if __name__ == "__main__":
     a = a * 2
     }"""
     C, I = takeInstructionWhile(while2)
+    In = takeInitialWhile(pseudo_code2)
     print(C)
     print(I)
+    print(In)
     
-    ResW2 = evaluateWhile(C, I)
+    while3 = """while(a >= 2){
+        j = i + 1
+        k = j
+        a = a - 3
+    }
+    """
+    C1, I1 = takeInstructionWhile(while3)
+    In1 = takeInitialWhile(pseudo_code3)
+    print(C1)
+    print(I1)
+    print(In1)
+    
+    ResW2 = evaluateWhile(C, I, In)
     print(ResW2)
     
     a = IsOpe(str1)

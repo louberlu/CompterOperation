@@ -1,5 +1,7 @@
-from Instruction.instruction import IsAffect, IsOpe, TakeWhile, AsWhile, evaluateWhile, takeInstructionWhile
-
+from Instruction.instruction import IsAffect, IsOpe
+from Instruction.instruction import TakeWhile, AsWhile
+from Instruction.instruction import takeInitialWhile, evaluateWhile, takeInstructionWhile
+from Instruction.instruction import INFINI
 """Ce module comprend des fonctions permettant de compter le nombre d'opérations dans un fichier texte.
 
 Fonctions:
@@ -27,7 +29,8 @@ def nbOperation(fichierTxt:str):
             
             #Calcul du nombre de tour de la boucle
             cond,instr = takeInstructionWhile(linesW)
-            nbT = evaluateWhile(cond, instr)
+            initial = takeInitialWhile(lines)
+            nbT = evaluateWhile(cond, instr, initial)
             
             #Compte le nombre d'opérations dans le bloc de text sans while
             for line in linesNoW.split("\n"):
@@ -37,16 +40,20 @@ def nbOperation(fichierTxt:str):
                     count += 1
             
             #Compte le nombre d'operation dans la boucle while
-            for line in linesW.split("\n"):
-                if IsOpe(line):
-                    countW += 1
-                elif IsAffect(line):
-                    countW += 1
-                elif AsWhile(line):
-                    countW += 1
-            countW *= nbT
+            if nbT != INFINI:
+                for line in linesW.split("\n"):
+                    if IsOpe(line):
+                        countW += 1
+                    elif IsAffect(line):
+                        countW += 1
+                    elif AsWhile(line):
+                        countW += 1
+                countW *= nbT
+            else:
+                return INFINI+" a été trouvé dans votre algorithme"
             
             #Compte le nombre d'opération total
+            print("Nombre de tour: ",nbT)
             count+=countW
     except FileNotFoundError:
         raise ValueError("Le fichier spécifié est introuvable.")
@@ -62,4 +69,5 @@ if __name__ == "__main__":
     print(m)
     n = nbOperation("exemple2.txt")
     print(n)
-    
+    l = nbOperation("exemple3.txt")
+    print(l)
