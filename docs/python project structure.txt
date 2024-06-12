@@ -1,0 +1,61 @@
+A typical Python project structure can look like this:
+
+my_project/
+│
+├── my_project/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── module1.py
+│   ├── module2.py
+│   ├── package1/
+│   │   ├── __init__.py
+│   │   ├── submodule1.py
+│   │   ├── submodule2.py
+│   ├── package2/
+│   │   ├── __init__.py
+│   │   ├── submodule1.py
+│   │   ├── submodule2.py
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_module1.py
+│   ├── test_module2.py
+│
+├── docs/
+│
+├── setup.py
+├── requirements.txt
+├── README.md
+└── .gitignore
+
+- my_project/ at the top level is the root directory of your project.
+
+- The second my_project/ is the actual Python package. Inside this 
+directory, you put your source code. The __init__.py file makes Python 
+treat this directory as a package.
+
+- main.py is the entry point to your application. This is where you put 
+the code to start your application.
+
+- module1.py and module2.py are Python modules. You put your classes, 
+functions, etc. in these files.
+
+- package1/ and package2/ are sub-packages. Inside these directories, 
+you can put more modules or sub-packages.
+
+- tests/ is where you put all your test code. You can use a library like 
+pytest to write tests for your code.
+
+- docs/ is where you put your documentation.
+
+- setup.py is the build script for setuptools. It tells setuptools about 
+your package (like its name and version) and what to include in the 
+distribution.
+
+- requirements.txt is where you list the dependencies of your project.
+
+- README.md is the file where you put the basic information about your 
+project, like what it does and how to install it.
+
+- .gitignore is where you put the names of files or directories that 
+you don't want to include in your Git repository.
